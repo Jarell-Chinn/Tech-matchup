@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getAllMatchups } from '../utils/api';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+// import { getAllMatchups } from '../utils/api';
 
 // Uncomment import statements below after building queries and mutations
-// import { useQuery } from '@apollo/client';
-// import { QUERY_MATCHUPS } from '../utils/queries';
+import { useQuery } from "@apollo/client";
+import { QUERY_MATCHUPS } from "../utils/queries";
 
 const Home = () => {
   const [matchupList, setMatchupList] = useState([]);
-
+  const [getMatches] = useQuery(QUERY_MATCHUPS);
   useEffect(() => {
     const getMatchupList = async () => {
       try {
-        const res = await getAllMatchups();
-        if (!res.ok) {
-          throw new Error('No list of matchups');
+        const res = await getMatches();
+        if (!res) {
+          throw new Error("No list of matchups");
         }
-        const matchupList = await res.json();
+        const matchupList = res;
         setMatchupList(matchupList);
       } catch (err) {
         console.error(err);

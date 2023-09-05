@@ -1,24 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getMatchup, createVote } from '../utils/api';
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+// import { getMatchup, createVote } from '../utils/api';
 
 // Uncomment import statements below after building queries and mutations
-// import { useQuery, useMutation } from '@apollo/client';
-// import { CREATE_VOTE } from '../utils/mutations';
-// import { QUERY_MATCHUPS } from '../utils/queries';
+import { useQuery, useMutation } from "@apollo/client";
+import { CREATE_VOTE } from "../utils/mutations";
+import { QUERY_MATCHUPS } from "../utils/queries";
+// import { createVote } from "../utils/api";
 
 const Vote = () => {
+  const [queryMatchups] = useQuery(QUERY_MATCHUPS);
+  const [CreateVote] = useMutation(CREATE_VOTE);
   const [matchup, setMatchup] = useState({});
   let { id } = useParams();
 
   useEffect(() => {
     const getMatchupInfo = async () => {
       try {
-        const res = await getMatchup(id);
-        if (!res.ok) {
-          throw new Error('No matchup');
+        const res = await queryMatchups({
+          variables: { input: id },
+        });
+        if (!res) {
+          throw new Error("No matchup");
         }
-        const matchup = await res.json();
+        const matchup = res;
         setMatchup(matchup);
       } catch (err) {
         console.error(err);
@@ -29,13 +34,15 @@ const Vote = () => {
 
   const handleVote = async (techNum) => {
     try {
-      const res = await createVote({ id, techNum });
+      const res = await CreateVote({
+        variables: { _id: id, techNum: techNum },
+      });
 
-      if (!res.ok) {
-        throw new Error('Could not vote');
+      if (!res) {
+        throw new Error("Could not vote");
       }
 
-      const matchup = await res.json();
+      const matchup = res;
       console.log(matchup);
       setMatchup(matchup);
     } catch (err) {
@@ -57,7 +64,7 @@ const Vote = () => {
         </h3>
         <button className="btn btn-info" onClick={() => handleVote(1)}>
           Vote for {matchup.tech1}
-        </button>{' '}
+        </button>{" "}
         <button className="btn btn-info" onClick={() => handleVote(2)}>
           Vote for {matchup.tech2}
         </button>

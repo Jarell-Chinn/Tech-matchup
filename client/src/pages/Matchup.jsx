@@ -1,29 +1,37 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAllTech, createMatchup } from '../utils/api';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+// import { getAllTech, createMatchup } from '../utils/api';
 
 // Uncomment import statements below after building queries and mutations
-// import { useMutation, useQuery } from '@apollo/client';
-// import { QUERY_TECH } from '../utils/queries';
-// import { CREATE_MATCHUP } from '../utils/mutations';
+import { useMutation, useQuery } from "@apollo/client";
+import { QUERY_TECH } from "../utils/queries";
+import { CREATE_MATCHUP } from "../utils/mutations";
+import { createMatchup } from "../utils/api";
 
 const Matchup = () => {
   const [techList, setTechList] = useState([]);
   const [formData, setFormData] = useState({
-    tech1: 'JavaScript',
-    tech2: 'JavaScript',
+    tech1: "JavaScript",
+    tech2: "JavaScript",
   });
   let navigate = useNavigate();
+  const [CreateMatchup] = useMutation(CREATE_MATCHUP);
 
   useEffect(() => {
     const getTechList = async () => {
       try {
-        const res = await getAllTech();
-        if (!res.ok) {
-          throw new Error('No list of technologies');
+        const { data } = await useQuery(QUERY_TECH);
+
+        if (!data) {
+          throw new Error("no list of technologies");
         }
-        const techList = await res.json();
-        setTechList(techList);
+
+        // const res = await getAllTech();
+        // if (!res.ok) {
+        //   throw new Error("No list of technologies");
+        // }
+        // const techList = await res.json();
+        setTechList(data);
       } catch (err) {
         console.error(err);
       }
@@ -40,13 +48,13 @@ const Matchup = () => {
     event.preventDefault();
 
     try {
-      const res = await createMatchup(formData);
+      const res = await CreateMatchup(formData);
 
-      if (!res.ok) {
-        throw new Error('something went wrong!');
+      if (!res) {
+        throw new Error("something went wrong!");
       }
 
-      const matchup = await res.json();
+      const matchup = res;
       console.log(matchup);
       navigate(`/matchup/${matchup._id}`);
     } catch (err) {
@@ -54,8 +62,8 @@ const Matchup = () => {
     }
 
     setFormData({
-      tech1: 'JavaScript',
-      tech2: 'JavaScript',
+      tech1: "JavaScript",
+      tech2: "JavaScript",
     });
   };
 

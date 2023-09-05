@@ -22,3 +22,5 @@ const typeDefs = `
         createVote(id: ID!, techNum: Int!): Matchup
    }
 `;
+
+module.exports = typeDefs;
